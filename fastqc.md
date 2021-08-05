@@ -28,11 +28,10 @@ You will get two output files for each fastq files (.html and .zip):
 
 <br />
 
-The `html` files are the ones that we are interested in. We're going to move all the `html` files into a directory so we can look at all the files at the same time.
+The `html` files are the ones that we are interested in. We're going to delete all of the zip files in the folder so we have just the `html` files.
 ```
 # remember we're still in the Analysis folder
-mkdir -p fastqc_raw
-mv */*.html fastqc_raw/
+rm */*_R?_fastqc.zip
 ```
 Now download that folder to your computer with this command. This command needs to be excuted on your local computer (not within colonial one). I recommend opening up another tab on your terminal and then executing this command:
 ```
@@ -53,12 +52,6 @@ All of the files can be opened up through Safari/Chrome/etc. (whatever internet 
 See this [PDF](https://github.com/kmgibson/EV_konzo/blob/master/FastQC_Manual.pdf) explaining the FastQC results or this [website by the creators of FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) that also has explaination of the results. 
 - The PDF was downloaded from the [University of Missouri sequencing core](https://dnacore.missouri.edu).
 
-<br />
-
-Finally, we need to remove unncessary files:
-```
-rm */*_R?_fastqc.zip
-```
 
 <br />
 
