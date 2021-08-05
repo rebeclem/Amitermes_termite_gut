@@ -24,7 +24,7 @@ sbatch scripts/flexbar.sh
 
 <br />
 
-The default parameters (the parameters that I use) are:
+The default parameters are:
 
 ```
 flexbar --threads 10 \
