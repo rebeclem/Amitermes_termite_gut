@@ -1,5 +1,5 @@
 # Performing FastQC on samples to assess the quality of reads
-Alternatively, you can use [this script](fastqc.sh) to run it on the cluster
+Alternatively, you can use [this script](fastqc.sh) to run it on the cluster after making a directory called "outfastqc" in the Analysis folder
 
 ```
 cd Analysis
