@@ -8,7 +8,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=rebeccaclement@gwu.edu
 
-module load fastqc 
+module load fastQC 
 
 for f in *; do
 fastqc -o $f -f fastq $f/flexcleaned_1.fastq $f/flexcleaned_2.fastq
