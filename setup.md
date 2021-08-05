@@ -1,5 +1,5 @@
 ## File setup
-First copy all files from Box to Pegasus HPC
+First copy all files from [Box](https://gwu.app.box.com/folder/142155909824?utm_campaign=collab%20auto%20accept%20user&utm_medium=email&utm_source=trans) to Pegasus HPC
 ```
 rsync -avh 20210728_Clement_0268 rebeccaclement@pegasus.colonialone.gwu.edu:/groups/cbi/Users/rclement/Rawdata/
 ```
