@@ -21,7 +21,8 @@ flexbar --threads 10 \
  --adapters refs/NexteraPE-PE.fa \
  --adapter-trim-end RIGHT \
  --adapter-min-overlap 7 \
- --pre-trim-left 10 \
+ --pre-trim-left 15 \
+ --pre-trim-right 2 \
  --max-uncalled 100 \
  --min-read-length 25 \
  --qtrim TAIL \
