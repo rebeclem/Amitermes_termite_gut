@@ -46,6 +46,7 @@ scp your_username@login.colonialone.edu:path/to/Analysis/fastqc_raw /local/dir
 >
 
 <br />
+Also upload the files to [GW BOX](https://gwu.app.box.com/folder/142719820510)
 
 All of the files can be opened up through Safari/Chrome/etc. (whatever internet browser you use). If you open the downloaded folder in your Finder (if on mac), you can select a file (so it is highlighted) and press the *space* button. A temporary window should show up with your results. Now you can press the *down arrow* and scroll through all the files relatively quickly.
 
