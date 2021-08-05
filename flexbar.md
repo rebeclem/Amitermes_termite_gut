@@ -114,5 +114,8 @@ Finally, we need to remove unncessary files:
 ```
 rm */flexcleaned*fastqc.zip
 ```
+
+Copy cleaned files to [Box](https://gwu.app.box.com/folder/142719428150). Navigate to the box file in terminal, then copy files over using `rsync -avh rebeccaclement@log001.colonialone.gwu.edu:/lustre/groups/cbi/Users/rclement/Amitermes/Analysis .`
+
 ***
 Next Step: [Count number of raw and cleaned reads](countreads.md)
