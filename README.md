@@ -19,4 +19,7 @@ A place for scripts and analysis of Amitermes termite gut
 
 9) [Functional Analysis with HuMANN2](humann2.md)
 
+10) [Run Kraken2](kraken2.md)
+
 If you run into trouble, try some of these [troubleshooting ideas](troubleshooting.md)
+
