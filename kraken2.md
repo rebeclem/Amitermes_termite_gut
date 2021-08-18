@@ -1,1 +1,2 @@
-Run [Kraken2](https://github.com/DerrickWood/kraken2/wiki/Manual) using the bash script [kraken2.sh](kraken2.sh). 
+# Running Kraken2 
+Run [Kraken2](https://github.com/DerrickWood/kraken2/wiki/Manual) using the bash script [kraken2.sh](kraken2.sh). Here the [maxikraken2 database](https://lomanlab.github.io/mockcommunity/mc_databases.html) of the Loman Lab was used. Other databases can be found [here](https://benlangmead.github.io/aws-indexes/k2). These databases circumvent the need to build your own database(s) via `kraken2-build` command.  
