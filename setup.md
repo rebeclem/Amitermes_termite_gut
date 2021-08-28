@@ -70,6 +70,23 @@ ls -d * > ../samps.txt
 ```
 
 ### Set up reference databases
+You may have to copy over files from `/GWSPH/groups/cbi/Databases/Genomes/References` to lustre.
+```
+scp /GWSPH/groups/cbi/Databases/Genomes/References/Amitermes_falcatus/amiFal.* /lustre/groups/cbi/Databases/Genomes/References/Amitermes_falcatus/
+```
+
+### Build .bt2 sequences from fasta
+```
+module load bowtie2
+bowtie2-build -f amiFal.fasta amiFal
+```
+
+### Get the most recent version of NCBI database
+On an interactive node, use the following to download bt2 sequences from https://ftp.ncbi.nlm.nih.gov/blast/db/
+```
+. scripts/build_NCBI_refrep_genomes.sh 20210823
+```
+
 ```
 cd refs 
 ```
