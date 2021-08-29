@@ -119,6 +119,10 @@ done
 for f in /lustre/groups/cbi/Databases/Genomes/References/Zootermopsis_nevadensis/BGI/zooNev/Sequence/Bowtie2Index/*.bt2; do
 ln -s $f;
 done
+
+for f in /lustre/groups/cbi/Databases/Genomes/References/Amitermes_falcatus/*.bt2; do
+ln -s $f;
+done
 ```
 Your refs folder should now have ~72 files that end with .bt2
 You should also copy the scripts from here to your scripts folder
