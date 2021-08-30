@@ -16,7 +16,7 @@ module load samtools
 ```
 
 
-#### Counting the number of __HUMAN__ mapped reads.
+#### Counting the number of __Termite__ mapped reads.
 
 1st, convert the `sam` file to a `bam` file. This will make it binary, so it takes up less space and is quicker to count. If you have large files, it may be good to run this using a script like samtobam.sh(samtobam.sh).
 
@@ -24,14 +24,14 @@ The & at the end means that you can type in the next command before it finishes.
 
 ```
 for d in *; do 
-    samtools view -b $d/human/outalign.sam > $d/human/outalign.bam && echo "Converted $d/outalign.sam" &
+    samtools view -b $d/termite/outalign.sam > $d/termite/outalign.bam && echo "Converted $d/outalign.sam" &
 done & 
 ```
 
 2nd, pull all the mapped read names from the `bam` file. The -F command, only displays the primary-mapped reads.
 ```
 for d in *; do 
-    samtools view -F 4 $d/human/outalign.bam | cut -f1 > $d/human/tmp.txt && echo $d &
+    samtools view -F 4 $d/termite/outalign.bam | cut -f1 > $d/termite/tmp.txt && echo $d &
 done &
 ```
 
@@ -91,7 +91,7 @@ After you have converted the `.sam` files to `.bam` files, you can delete the `.
 
 ## Setting up the files to be ready for visualization in R.
 ### Now you have two files:
-1. `reads_hg.txt`
+1. `reads_termite.txt`
 2. `reads_bac.txt`
 
 Which both have the format of:
