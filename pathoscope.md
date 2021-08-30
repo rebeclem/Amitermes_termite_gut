@@ -49,8 +49,8 @@ cat ../samps.txt | while read f; do cp $f/bac/pathoid-sam-report.tsv ../bac/${f}
 From your computer, make a folder called `pathoscope_output` on box in `/Box/20210728_Clement_0268`, and copy the files from your bac and human folders to this folder.
 ```
 mkdir pathoscope_output
-rsync -avh rebeccaclement@login.colonialone.gwu.edu:/GWSPH/home/rebeccaclement/glustre/Amitermes/bac .
-rsync -avh rebeccaclement@login.colonialone.gwu.edu:/GWSPH/home/rebeccaclement/glustre/Amitermes/termite .
+rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/bac .
+rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/termite .
 ```
 >
 
