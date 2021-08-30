@@ -46,7 +46,7 @@ cd Analysis
 cat ../samps.txt | while read f; do cp $f/termite/pathoid-sam-report.tsv ../termite/${f}_pathoid-sam-report.tsv ; echo $f; done
 cat ../samps.txt | while read f; do cp $f/bac/pathoid-sam-report.tsv ../bac/${f}_pathoid-sam-report.tsv ; echo $f; done
 ```
-From your computer, make a folder called `pathoscope_output`, and copy the files from your bac and human folders to this folder.
+From your computer, make a folder called `pathoscope_output` on box in `/Box/20210728_Clement_0268`, and copy the files from your bac and human folders to this folder.
 ```
 mkdir pathoscope_output
 rsync -avh rebeccaclement@login.colonialone.gwu.edu:/GWSPH/home/rebeccaclement/glustre/Amitermes/bac .
