@@ -100,7 +100,7 @@ done
 ```
 #### Bacteria references
 ```
-for f in /lustre/groups/cbi/Databases/NCBI/NCBI_refrep_genomes/latest/Sequence/Bowtie2Index/*.bt2; do
+for f in /lustre/groups/cbi/Databases/NCBI/NCBI_refrep_genome/20210823/Sequence/Bowtie2Index/*.bt2; do
 ln -s $f; 
 done
 ```
