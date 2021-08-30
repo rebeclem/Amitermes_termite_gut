@@ -38,10 +38,10 @@ done &
 3rd, count unique reads.
 This is counting the number of *unique* reads that mapped to the human database and writes the number of unique reads and sample name to a file.
 ```
-echo -e "Samp\tReads" >> reads_hg.txt
+echo -e "Samp\tReads" >> reads_termite.txt
 for d in *; do 
-   readnum=$(cat $d/human/tmp.txt | python ../scripts/count_uniq.py)
-   echo -e "${d}\t${readnum}" >> reads_hg.txt
+   readnum=$(cat $d/termite/tmp.txt | python ../scripts/count_uniq.py)
+   echo -e "${d}\t${readnum}" >> reads_termite.txt
    echo $d $readnum
 done 
 ```
