@@ -17,6 +17,8 @@ sbatch -a 1-$(wc -l < ../samps.txt) ../scripts/pathoscope_termite.sh
 ### **_Mapping to Bacteria_**
 You will need the [`pathoscope_bacteria.sh`](pathoscope_bacteria.sh) file.
 This file is set up to run 33 samples. You can change this manually and then run `sbatch pathoscope_human.sh` or you can delete the line that says "#SBATCH --array=1-33" and run the following command.
+
+Note: I'm not sure that the most recent version of the NCBI database is complete, so I'm also repeating pathoscope with an older (march 2020) database. I'll call this one bac2.
 ```
 sbatch -a 1-$(wc -l < ../samps.txt) ../scripts/pathoscope_bacteria.sh
 ```
@@ -42,15 +44,18 @@ Outside of your analysis folder, make directories called `bac` and `human`
 ```
 mkdir bac
 mkdir termite
+mkdir bac2
 cd Analysis
 cat ../samps.txt | while read f; do cp $f/termite/pathoid-sam-report.tsv ../termite/${f}_pathoid-sam-report.tsv ; echo $f; done
 cat ../samps.txt | while read f; do cp $f/bac/pathoid-sam-report.tsv ../bac/${f}_pathoid-sam-report.tsv ; echo $f; done
+cat ../samps.txt | while read f; do cp $f/bac/pathoid-sam-report.tsv ../bac2/${f}_pathoid-sam-report.tsv ; echo $f; done
 ```
 From your computer, make a folder called `pathoscope_output` on box in `/Box/20210728_Clement_0268`, and copy the files from your bac and human folders to this folder.
 ```
 mkdir pathoscope_output
 rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/bac .
 rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/termite .
+rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/bac2 .
 ```
 >
 
