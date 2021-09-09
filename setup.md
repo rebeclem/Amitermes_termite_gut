@@ -82,7 +82,7 @@ bowtie2-build -f amiFal.fasta amiFal
 ```
 
 ### Get the most recent version of NCBI database
-On an interactive node, use the following to download bt2 sequences from https://ftp.ncbi.nlm.nih.gov/blast/db/
+On an interactive node, use the following to download bt2 sequences from https://ftp.ncbi.nlm.nih.gov/blast/db/. If this doesn't work, you may have to run build_NCBI_rerep_genomes.sh line by line.
 ```
 . scripts/build_NCBI_refrep_genomes.sh 20210823
 ```
