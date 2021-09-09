@@ -2,9 +2,9 @@
 #SBATCH -N 1
 #SBATCH -t 20:00:00
 #SBATCH -p defq,short,gpu
-#SBATCH -o samtobamhuman3.%A_%a.out
-#SBATCH -e samtobamhuman3.%A_%a.err
-#SBATCH --array=1-25
+#SBATCH -o samtobambac2.%A_%a.out
+#SBATCH -e samtobambac2.%A_%a.err
+#SBATCH --array=1-33
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=rebeccaclement@gwu.edu
 
@@ -12,12 +12,12 @@ name=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../samps.txt)
 
 module load samtools
 
-#cat ../samps.txt | while read d; do samtools view -b $d/bac_prinseq/outalign.sam > $d/bac_prinseq/outalign.bam ; echo "Converted $d/outalign.sam"; done
-samtools view -b $name/human3/outalign.sam > $name/human3/outalign.bam 
+#cat ../samps.txt | while read d; do samtools view -b $d/bac2/outalign.sam > $d/bac2/outalign.bam ; echo "Converted $d/outalign.sam"; done
+samtools view -b $name/bac2/outalign.sam > $name/bac2/outalign.bam 
  echo "Converted $name/outalign.sam"
 
 #for d in *; do 
-#    samtools view -b $d/bac_prinseq/outalign.sam > $d/bac_prinseq/outalign.bam && echo "Converted $d/outalign.sam" &
+#    samtools view -b $d/bac2/outalign.sam > $d/bac2/outalign.bam && echo "Converted $d/outalign.sam" &
 #done &
 
 #for d in *; do 
