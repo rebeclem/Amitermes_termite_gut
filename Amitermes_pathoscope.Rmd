@@ -1,0 +1,231 @@
+---
+title: "Amitermes Pathoscope"
+author: "Rebecca Clement"
+date: "9/21/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load packages
+```{r}
+library("taxonomizr")
+library("ggplot2") 
+library("phyloseq")
+library("plyr")
+library("vegan")
+library("DESeq2")
+library("tidyr")
+```
+
+Set working directory and load sample names and files
+```{r}
+setwd("~/Box/20210728_Clement_0268/pathoscope_output/")
+con1 <- file("samps.txt", "r", blocking = FALSE) #open file connection for reading
+dir.names = readLines(con = con1) #each line is a directory name
+close(con1) #close file connection
+rm(con1)
+
+# REad file with counts
+seq.results <- read.csv("../read_count_Amitermes.csv")
+#seq.results$Status <- factor(seq.results$Status, levels=c("Raw", "Cleaned")) 
+```
+Summary statistics
+```{r}
+#Get the means of the groups
+group_cleaned_mean <-ddply(seq.results,.(Status),summarize,mean=mean(Reads)) #There are average 6.44 million raw reads and 6.41 cleaned reads
+#Getting the average amount of reads without zymo:
+seq.results.df <- data.frame(seq.results[seq.results$Samp!="zymo",])
+seq.median <- by(seq.results.df$Reads, seq.results.df$Status, median) # about 6.2 million
+seq.mean <- by(seq.results.df$Reads, seq.results.df$Status, mean) # about 6.6 million
+sum_reads <- by(seq.results.df$Reads, seq.results.df$Status, sum)
+sum_reads #185784534 cleaned
+sum_reads/2 #92892267 paired reads cleaned
+sum_reads/2/28 #3.3 million
+```
+Plot the cleaned vs raw reads
+```{r}
+seq.results_plot <- ggplot(data=seq.results, aes(x=Samp, y=Reads, fill=Status)) + geom_bar(stat="identity", position="dodge")
+seq.results_plot <- seq.results_plot + theme_classic() + theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))+facet_grid( ~ Group, scales = "free", space = "free")
+seq.results_plot
+ggsave("plots/seq.results_plot_raw_vs_cleaned.pdf", seq.results_plot)
+```
+
+Load sample data
+```{r}
+file.names = list.files(path = "./bac2", pattern="*.tsv", full.names = TRUE)
+columnsofinterests <- c('Genome','Final.Best.Hit.Read.Numbers') #Modify Final.Guess here to whatever column you'd like. The selected column is used to build the OTU table.
+alltables <- lapply(file.names, function(fn){
+  #fn.next <- substr(fn,21,nchar(fn)-23) # Adjust this to capture the sample names from the filenames
+  fn.next <- stringr::str_match(fn, "/([^_/]+)_")[,2]
+  temp.df <- read.table(fn, sep="\t", header=TRUE, skip=1) %>%
+    tidyr::separate(Genome, sep='\\|', into=c('x', 'tid'), extra='drop') %>% 
+    dplyr::select(c('tid', 'Final.Best.Hit.Read.Numbers')) %>%
+    dplyr::group_by(tid) %>% 
+    dplyr::summarise(tot=sum(Final.Best.Hit.Read.Numbers)) %>% data.frame
+  names(temp.df) <- c('ti', fn.next)
+  return(temp.df)
+})
+all_merge <- Reduce(function(x,y) merge(x,y, by='ti', all=TRUE), alltables)
+
+ranks <-c('superkingdom', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'family', 'subfamily', 'genus', 'subgenus', 'species', 'no rank') #These will be the ranks of our taxonomy table.
+
+#This makes the otu matrix with the taxa IDs and number
+patho.otu_mat <- data.matrix(all_merge[2:dim(all_merge)[2]])
+rownames(patho.otu_mat) <- all_merge$ti
+patho.otu_mat <- replace(patho.otu_mat, is.na(patho.otu_mat), 0) #replace NAs with 0
+write.csv(patho.otu_mat,"pathoscope_otu_matrix.csv")
+dim(patho.otu_mat) #1110 rows
+```
+Load sample data
+```{r}
+## Loading Sample data
+sampledata <- read.csv("../Amitermes_metadata.csv")
+sampledata <- as.data.frame(sampledata)
+colnames(sampledata) <- c("Samp","Samp_name2","Group","Group2","notes","Lat","Lon")
+rownames(sampledata) <- sampledata[,1]
+sampledata$Group_f = factor(sampledata$Group, levels=c('Amitermes','Drepanotermes','zymo'))
+sampledata$Group_g = factor(sampledata$Group2, levels=c('Amitermes sp.','Drepanotermes tamminensis','Drepanotermes gayi','Amitermes dentosus','Amitermes obeuntis','Amitermes heterognathus','Drepanotermes rubriceps','Drepanotermes perniger (mound-building)','Drepanotermes perniger (subterranean)','zymo'))
+```
+
+Now make the taxonomic matrix
+```{r}
+patho.tax_mat <- matrix(data = NA, nrow=dim(patho.otu_mat)[1], ncol=length(ranks)) #make a matrix that has the same number of rows as your OTU table, and the same number of columns as the ranks
+rownames(patho.tax_mat) <- rownames(patho.otu_mat) #make the rownames the same as your otu matrix
+colnames(patho.tax_mat) <- ranks #make the column names the ranks
+getNamesAndNodes() # Downloads nodes.dmp and names.dmp files from NCBI
+tNodes <- read.nodes("nodes.dmp")
+tNames <- read.names("names.dmp")
+patho.tax <- getTaxonomy(rownames(patho.otu_mat), tNodes, tNames, mc.cores = parallel::detectCores()-1)  # use all cores. This may take a while.
+rownames(patho.tax) <- trimws(rownames(patho.tax)) #takes away whitespace
+```
+Make the phyloseq object
+```{r}
+pathoscope.phy <- phyloseq(otu_table(patho.otu_mat, taxa_are_rows = TRUE), tax_table(patho.tax)) #creates phyloseq object
+# loading sample data
+pathoscope.phy = merge_phyloseq(pathoscope.phy, sample_data(sampledata))
+```
+Pathoscope Kingdom level
+```{r}
+# Pathoscope Kingdom-level assignments chart
+patho.byking <- tax_glom(pathoscope.phy,taxrank = 'superkingdom') #combine all taxa into phylum-level groups
+patho.byking.tr <- transform_sample_counts(patho.byking, function (x) x / sum(x)) #transform abundances into relative abundances
+#patho.byking.tr.f <- filter_taxa(patho.byking.tr, function (x) max(x) > 1e-2, TRUE) #filter out phyla with < 1% relative abundance.
+
+patho.by_king_plot <- plot_bar(patho.byking.tr, "Sample", "Abundance", 'superkingdom', labs(y="Relative Abundance", title = "Pathoscope kingdom-level assignments"))
+patho.by_king_plot <- patho.by_king_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free")  + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_king_plot
+ggsave("plots/PS.by_kingdom.pdf", patho.by_king_plot) 
+```
+Pathoscope by phylum
+```{r}
+# Pathoscope Phylum-level assignments chart
+patho.byphylum <- tax_glom(pathoscope.phy,taxrank = 'phylum') #combine all taxa into phylum-level groups
+
+patho.byphylum.tr <- transform_sample_counts(patho.byphylum, function (x) x / sum(x)) #transform abundances into relative abundances
+# save a csv of this
+write.csv(otu_table(patho.byphylum), file = "outfiles/otu_mat_phylum.csv")
+#patho.byphylum.tr.f <- filter_taxa(patho.byphylum.tr, function (x) max(x) > 1e-2, TRUE) #filter out phyla with < 1% relative abundance.
+
+patho.by_phylum_plot <- plot_bar(patho.byphylum.tr, "Sample", "Abundance", 'phylum', labs(y="Relative Abundance", title = "Pathoscope phylum-level assignments"))
+patho.by_phylum_plot <-  patho.by_phylum_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_phylum_plot
+ggsave("plots/PS.by_phylum.pdf", patho.by_phylum_plot)
+```
+Pathoscope by class
+```{r}
+# Pathoscope Class-level assignments chart
+patho.byclass <- tax_glom(pathoscope.phy,taxrank = 'class') #combine all taxa into class-level groups
+patho.byclass.tr <- transform_sample_counts(patho.byclass, function (x) x / sum(x)) #transform abundances into relative abundances
+#we don't need to filter out because there are only 26 classes patho.byclass.tr.f <- filter_taxa(patho.byclass.tr, function (x) max(x) > 1e-2, TRUE) #filter out phyla with < 1% relative abundance.
+
+patho.by_class_plot <- plot_bar(patho.byclass.tr, "Sample", "Abundance", 'class', labs(y="Relative Abundance", title = "Pathoscope class-level assignments")) + theme_classic()
+patho.by_class_plot <- patho.by_class_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_class_plot
+ggsave("plots/PS.by_class_max1.pdf", patho.by_class_plot,width = 8)
+```
+Pathoscope by order
+```{r}
+# Pathoscope Order-level assignments chart
+patho.byorder <- tax_glom(pathoscope.phy,taxrank = 'order')
+patho.byorder.tr <- transform_sample_counts(patho.byorder, function (x) x / sum(x))
+patho.byorder.tr.f <- filter_taxa(patho.byorder.tr, function (x) max(x) > 1e-2, TRUE)
+patho.by_order_plot <- plot_bar(patho.byorder.tr.f, "Sample", "Abundance", 'order', labs(y="Relative Abundance", title = "Pathoscope order-level assignments"))
+patho.by_order_plot <- patho.by_order_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_order_plot
+ggsave("plots/PS.by_order.pdf", patho.by_order_plot,width=10)
+ #see which orders are most common
+patho.byorder.tr.ff <- filter_taxa(patho.byorder.tr, function (x) max(x) > .3, TRUE)
+patho.byorder.tr.ff@tax_table
+```
+
+Pathoscope by family
+```{r}
+# Pathoscope Family-level assignments chart
+patho.byfamily <- tax_glom(pathoscope.phy,taxrank = 'family')
+patho.byfamily.tr <- transform_sample_counts(patho.byfamily, function (x) x / sum(x))
+patho.byfamily.tr.f <- filter_taxa(patho.byfamily.tr, function (x) max(x) > 1e-2, TRUE)
+patho.by_family_plot <- plot_bar(patho.byfamily.tr.f, "Sample", "Abundance", 'family', labs(y="Relative Abundance", title = "Pathoscope family-level assignments"))
+patho.by_family_plot <- patho.by_family_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free") + 
+  theme(legend.key.size = unit(.2, "cm")) + 
+  guides(fill=guide_legend(ncol=1,byrow=TRUE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_family_plot
+ggsave("plots/PS.by_family.pdf", patho.by_family_plot,width=11)
+```
+Pathoscope by genus
+```{r}
+# Pathoscope Genus-level assignments chart
+patho.bygenus <- tax_glom(pathoscope.phy,taxrank = 'genus')
+patho.bygenus.tr <- transform_sample_counts(patho.bygenus, function (x) x / sum(x))
+patho.bygenus.tr.f <- filter_taxa(patho.bygenus.tr, function (x) max(x) > 1e-2, TRUE) 
+patho.by_genus_plot <- plot_bar(patho.bygenus.tr.f, "Sample", "Abundance", 'genus', labs(y="Relative Abundance", title = "Pathoscope genus-level assignments"))
+patho.by_genus_plot <- patho.by_genus_plot + 
+  theme_classic() + 
+  facet_grid( ~ Group_f, scales = "free", space = "free") + 
+  theme(legend.key.size = unit(.2, "cm")) + 
+  guides(fill=guide_legend(ncol=1,byrow=TRUE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0))
+patho.by_genus_plot
+ggsave("plots/PS.by_genus.pdf", patho.by_genus_plot,width=10)
+```
+Pathoscope by species
+```{r}
+# Pathoscope Species-level assignments chart
+patho.byspecies <- tax_glom(pathoscope.phy,taxrank = 'species')
+patho.byspecies.tr <- transform_sample_counts(patho.byspecies, function (x) x / sum(x))
+patho.byspecies.tr.f <- filter_taxa(patho.byspecies.tr, function (x) max(x) > .05, TRUE)
+patho.by_species_plot <- plot_bar(patho.byspecies.tr.f, "Sample", "Abundance", 'species', labs(y="Relative Abundance", title = "Pathoscope species-level assignments"))
+patho.by_species_plot <- patho.by_species_plot + theme_classic()
+
+patho.by_species_plot <- patho.by_species_plot + 
+  theme(legend.position="bottom") +
+  theme(legend.key.size = unit(.2, "cm"), legend.text = element_text(size = 9), legend.title = element_blank()) + 
+  guides(fill=guide_legend(ncol=4,byrow=TRUE)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=0)) +
+  facet_grid( ~ Group_g, scales = "free", space = "free") +
+  ggtitle("Pathoscope species-level assignments with 0.05% maximum abundance") +
+  ylab("Relative Abundance")
+
+patho.by_species_plot
+ggsave("plots/PS.by_species_max.05.jpg",patho.by_species_plot,width=10)
+```
+
