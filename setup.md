@@ -124,6 +124,13 @@ for f in /lustre/groups/cbi/Databases/Genomes/References/Amitermes_falcatus/*.bt
 ln -s $f;
 done
 ```
+
+#### Set up MAGS
+First download the [GenBank assemblies](https://www.ncbi.nlm.nih.gov/assembly?LinkName=bioproject_assembly_all&from_uid=560329) in fasta format.
+Next, upload this folder to pegasus: `rsync -avh ncbi-genomes-2022-11-28/ rebeccaclement@pegasus.arc.gwu.edu:/GWSPH/home/rebeccaclement/glustre/Amitermes/MAGs`
+Merge all into one genomes file: `cat *.fna.gz > MAG_genomes.fna.gz`
+Load bowtie 2: `module load bowtie2` and build bowtie2 database: `bowtie2-build MAG_genomes.fna.gz MAG`
+
 Your refs folder should now have ~72 files that end with .bt2
 You should also copy the scripts from here to your scripts folder
 ***
