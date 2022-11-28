@@ -1,6 +1,6 @@
 # Part 6 - Pathoscope
 
-We will map to Pathoscope twice. First, targetting termite. We want to know how much termite "contamination" is in our samples - how many reads belong to termite. Second, we will map to the bacterial databases.
+We will map to Pathoscope 3X. First, targetting termite. We want to know how much termite "contamination" is in our samples - how many reads belong to termite. Second, we will map to the NCBI bacterial databases. Finally, we will map to the [termite MAGs](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA560329/). 
 
 You must be in the Analysis folder before calling any of the Pathoscope scripts.
 ```
