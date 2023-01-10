@@ -44,18 +44,21 @@ Outside of your analysis folder, make directories called `bac` and `human`
 ```
 mkdir bac
 mkdir termite
-mkdir bac2
+mkdir MAG
+mkdir human
 cd Analysis
 cat ../samps.txt | while read f; do cp $f/termite/pathoid-sam-report.tsv ../termite/${f}_pathoid-sam-report.tsv ; echo $f; done
 cat ../samps.txt | while read f; do cp $f/bac/pathoid-sam-report.tsv ../bac/${f}_pathoid-sam-report.tsv ; echo $f; done
-cat ../samps.txt | while read f; do cp $f/bac2/pathoid-sam-report.tsv ../bac2/${f}_pathoid-sam-report.tsv ; echo $f; done
+cat ../samps.txt | while read f; do cp $f/MAG/pathoid-sam-report.tsv ../MAG/${f}_pathoid-sam-report.tsv ; echo $f; done
+cat ../samps.txt | while read f; do cp $f/human/pathoid-sam-report.tsv ../human/${f}_pathoid-sam-report.tsv ; echo $f; done
 ```
 From your computer, make a folder called `pathoscope_output` on box in `/Box/20210728_Clement_0268`, and copy the files from your bac and human folders to this folder.
 ```
 mkdir pathoscope_output
 rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/bac .
 rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/termite .
-rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/bac2 .
+rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/MAG .
+rsync -avh rebeccaclement@log001.colonialone.gwu.edu:glustre/Amitermes/human .
 ```
 >
 
